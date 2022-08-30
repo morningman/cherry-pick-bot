@@ -34,8 +34,10 @@ cherrypick_args() {
 
 # setup github for commit the changes
 git_setup() {
+   echo "cmy000"
    git config user.name "${GITHUB_USER}"
    git config user.email "${GITHUB_EMAIL}"
+   git config --global --add safe.directory /github/workspace
 }
 
 check_pr_is_merged() {
