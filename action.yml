@@ -14,7 +14,7 @@ inputs:
   github_repos:
     description: 'The '
     required: true
-    default: 'apache/pulsar'
+    default: 'apache/doris'
 runs:
   using: 'docker'
   image: 'Dockerfile'
