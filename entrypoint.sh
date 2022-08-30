@@ -57,12 +57,14 @@ cherrypick() {
     git checkout ${TARGET_BRANCH}
     git checkout -b ${BOT_BRANCH_NAME}
     git status
-    git cherry-pick -x "${PR_MERGE_COMMIT_SHA}" -X Recursive
+    git cherry-pick -x "${PR_MERGE_COMMIT_SHA}"
     status=$?
+    echo "cmy1"
     if [[ ${status} != 0 ]]; then
         git add .
         git commit --allow-empty -m "${BOT_PR_TITLE_PREFIX}${PR_TITLE}"
     fi
+    echo "cmy2"
     git push origin ${BOT_BRANCH_NAME}
     gh pr create --title "${BOT_PR_TITLE_PREFIX}${PR_TITLE}" --fill --base ${TARGET_BRANCH}
 }
