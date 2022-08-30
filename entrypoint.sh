@@ -44,20 +44,28 @@ check_pr_is_merged() {
         echo "PR is not merged"
         exit 0
     fi
+    echo "cmy merged"
 }
 
 cherrypick() {
     check_pr_is_merged
+    echo "cmy branch1"
     TARGET_BRANCH=`echo ${COMMENT_BODY} | grep -o "branch-[0-9].[0-9]"`
     if [[ "" == ${TARGET_BRANCH} ]]; then
         echo "Wrong target branch"
         exit 1
     fi
+    echo "cmy branch2"
     git fetch --all
+    echo "cmy branch3"
     git checkout ${TARGET_BRANCH}
+    echo "cmy branch4"
     git checkout -b ${BOT_BRANCH_NAME}
+    echo "cmy branch5"
     git status
+    echo "cmy branch6"
     git cherry-pick -x "${PR_MERGE_COMMIT_SHA}"
+    echo "cmy branch7"
     status=$?
     echo "cmy1"
     if [[ ${status} != 0 ]]; then
