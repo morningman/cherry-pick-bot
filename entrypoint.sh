@@ -28,6 +28,7 @@ cherrypick_args() {
             --header 'Accept: application/vnd.github.sailor-v-preview+json')
     fi
 
+    readonly NOT_FOUND=`echo ${PR_INFO} | jq -r .message`
     readonly PR_MERGE_COMMIT_SHA=`echo ${PR_INFO} | jq -r .merge_commit_sha`
     readonly PR_TITLE=`echo ${PR_INFO} | jq -r .title`
 }
@@ -41,6 +42,11 @@ git_setup() {
 }
 
 check_pr_is_merged() {
+    if [[ "Not Found" == ${NOT_FOUND} ]]; then
+        echo "PR ${PR_NUMBER} is not found"
+        exit 0
+    fi
+
     MERGED=`echo ${PR_INFO} | jq -r .merged`
     if [[ "false" == ${MERGED} ]]; then
         echo "PR is not merged"
@@ -57,25 +63,26 @@ cherrypick() {
         echo "Wrong target branch"
         exit 1
     fi
-    echo "cmy branch2"
+    echo "git fetch --all"
     git fetch --all
-    echo "cmy branch3"
+    echo "git checkout ${TARGET_BRANCH}"
     git checkout ${TARGET_BRANCH}
-    echo "cmy branch4"
+    echo "git checkout -b ${BOT_BRANCH_NAME}"
     git checkout -b ${BOT_BRANCH_NAME}
-    echo "cmy branch5"
+    echo "git status"
     git status
-    echo "cmy branch6"
+    echo "git cherry-pick -x "${PR_MERGE_COMMIT_SHA}""
     git cherry-pick -x "${PR_MERGE_COMMIT_SHA}"
-    echo "cmy branch7"
     status=$?
-    echo "cmy1"
     if [[ ${status} != 0 ]]; then
+        echo "git add ."
         git add .
+        echo "git commit --allow-empty -m "${BOT_PR_TITLE_PREFIX}${PR_TITLE}""
         git commit --allow-empty -m "${BOT_PR_TITLE_PREFIX}${PR_TITLE}"
     fi
-    echo "cmy2"
+    echo "git push origin ${BOT_BRANCH_NAME}"
     git push origin ${BOT_BRANCH_NAME}
+    echo "gh pr create --title "${BOT_PR_TITLE_PREFIX}${PR_TITLE}" --fill --base ${TARGET_BRANCH}"
     gh pr create --title "${BOT_PR_TITLE_PREFIX}${PR_TITLE}" --fill --base ${TARGET_BRANCH}
 }
 
