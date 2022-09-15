@@ -70,8 +70,8 @@ cherrypick() {
     git checkout ${TARGET_BRANCH}
     echo "executing... git checkout -b ${BOT_BRANCH_NAME}"
     git checkout -b ${BOT_BRANCH_NAME}
-    echo "executing... git fetch origin main:main"
-    git fetch origin main:main
+    echo "executing... git fetch origin main"
+    git fetch origin main
     echo "executing... git status"
     git status
     echo "executing... git log --oneline"
