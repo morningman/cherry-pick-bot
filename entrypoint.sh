@@ -39,8 +39,7 @@ git_setup() {
    git config --global user.name "${GITHUB_USER}"
    echo "executing... git config --global user.email \"${GITHUB_EMAIL}\""
    git config --global user.email "${GITHUB_EMAIL}"
-   echo "executing... git config --global --add safe.directory /github/workspace"
-   git config --global --add safe.directory /github/workspace
+   
 }
 
 check_pr_is_merged() {
@@ -78,6 +77,8 @@ cherrypick() {
     git log --oneline
     echo "executing... git log main --oneline"
     git log main --oneline
+    echo "executing... git log ${PR_MERGE_COMMIT_SHA}"
+    git log ${PR_MERGE_COMMIT_SHA}
     echo "executing... git cherry-pick -x "${PR_MERGE_COMMIT_SHA}""
     RES=`git cherry-pick -x "${PR_MERGE_COMMIT_SHA}" 2>&1`
     echo "cherry-pick res: $RES"
