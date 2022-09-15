@@ -90,7 +90,7 @@ cherrypick() {
         echo "executing... git commit --allow-empty -m \"${BOT_PR_TITLE_PREFIX}${PR_TITLE}\""
         git commit --allow-empty -m "${BOT_PR_TITLE_PREFIX}${PR_TITLE}"
         echo "executing... git push origin ${BOT_BRANCH_NAME}"
-        git push origin ${BOT_BRANCH_NAME}
+        git push origin ${BOT_BRANCH_NAME} -f
         echo "executing... gh pr create --title \"${BOT_PR_TITLE_PREFIX}${PR_TITLE}\" --fill --base ${TARGET_BRANCH}"
         gh pr create --title "${BOT_PR_TITLE_PREFIX}${PR_TITLE}" --fill --base ${TARGET_BRANCH}
     fi
