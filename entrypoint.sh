@@ -72,6 +72,7 @@ cherrypick() {
     git checkout -b ${BOT_BRANCH_NAME}
     echo "executing... git status"
     git status
+    git log -p -1
     echo "executing... git cherry-pick -x "${PR_MERGE_COMMIT_SHA}""
     RES=`git cherry-pick -x "${PR_MERGE_COMMIT_SHA}" 2>&1`
     CONFLICT=`echo "$RES" |grep "CONFLICT"`
