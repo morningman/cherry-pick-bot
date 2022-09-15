@@ -39,7 +39,8 @@ git_setup() {
    git config --global user.name "${GITHUB_USER}"
    echo "executing... git config --global user.email \"${GITHUB_EMAIL}\""
    git config --global user.email "${GITHUB_EMAIL}"
-   
+   echo "executing... git config --global --add safe.directory /github/workspace"
+   git config --global --add safe.directory /github/workspace
 }
 
 check_pr_is_merged() {
