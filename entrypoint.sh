@@ -72,15 +72,15 @@ cherrypick() {
     git checkout -b ${BOT_BRANCH_NAME}
     echo "executing... git status"
     git status
-    echo "executing... git log -p -1"
-    git log -p -1
-    echo "executing... git log main -p -10"
-    git log main -p -10
+    echo "executing... git log --oneline"
+    git log --oneline
+    echo "executing... git log main --oneline"
+    git log main --oneline
     echo "executing... git cherry-pick -x "${PR_MERGE_COMMIT_SHA}""
     RES=`git cherry-pick -x "${PR_MERGE_COMMIT_SHA}" 2>&1`
     echo "cherry-pick res: $RES"
-    echo "executing... git log -p -2"
-    git log -p -2
+    echo "executing... git log --oneline"
+    git log --oneline
     CONFLICT=`echo "$RES" |grep "CONFLICT"`
     if [[ "" != ${CONFLICT} ]]; then
         ERR=`git status 2>&1`
