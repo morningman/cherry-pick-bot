@@ -66,6 +66,8 @@ cherrypick() {
     fi
     echo "executing... git fetch --all"
     git fetch --all
+    echo "executing... git fetch origin main:main"
+    git fetch origin main:main
     echo "executing... git checkout ${TARGET_BRANCH}"
     git checkout ${TARGET_BRANCH}
     echo "executing... git checkout -b ${BOT_BRANCH_NAME}"
