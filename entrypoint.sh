@@ -78,8 +78,8 @@ cherrypick() {
     git log --oneline
     echo "executing... git log main --oneline"
     git log main --oneline
-    echo "executing... git log ${PR_MERGE_COMMIT_SHA}"
-    git log ${PR_MERGE_COMMIT_SHA}
+    echo "executing... git diff ${PR_MERGE_COMMIT_SHA}"
+    git diff ${PR_MERGE_COMMIT_SHA}
     echo "executing... git cherry-pick -x "${PR_MERGE_COMMIT_SHA}""
     RES=`git cherry-pick -x "${PR_MERGE_COMMIT_SHA}" 2>&1`
     echo "cherry-pick res: $RES"
