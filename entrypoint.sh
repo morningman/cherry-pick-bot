@@ -61,7 +61,7 @@ cherrypick() {
     check_pr_is_merged
     TARGET_BRANCH=`echo ${COMMENT_BODY} | grep -o "branch-[0-9].[0-9].*"`
     if [[ "" == ${TARGET_BRANCH} ]]; then
-        echo "Wrong target branch"
+        echo "Wrong target branch. Please match pattern: \"branch-[0-9].[0-9].*\""
         exit 1
     fi
     echo "executing... git fetch --all"
@@ -73,21 +73,22 @@ cherrypick() {
     echo "executing... git status"
     git status
     echo "executing... git cherry-pick -x "${PR_MERGE_COMMIT_SHA}""
-    git cherry-pick -x "${PR_MERGE_COMMIT_SHA}"
-    status=$?
-    if [[ ${status} == 0 ]]; then
+    RES=`git cherry-pick -x "${PR_MERGE_COMMIT_SHA}" 2>&1`
+    CONFLICT=`echo "$RES" |grep "CONFLICT"`
+    if [[ "" != ${CONFLICT} ]]; then
+        ERR=`git status 2>&1`
+        echo "cherry-pick failed: $ERR"
+        exit -1
+    else
         echo "executing... git add ."
         git add .
         echo "executing... git commit --allow-empty -m \"${BOT_PR_TITLE_PREFIX}${PR_TITLE}\""
         git commit --allow-empty -m "${BOT_PR_TITLE_PREFIX}${PR_TITLE}"
-    else
-        echo "cherry-pick failed"
-        exit -1
+        echo "executing... git push origin ${BOT_BRANCH_NAME}"
+        git push origin ${BOT_BRANCH_NAME}
+        echo "executing... gh pr create --title \"${BOT_PR_TITLE_PREFIX}${PR_TITLE}\" --fill --base ${TARGET_BRANCH}"
+        gh pr create --title "${BOT_PR_TITLE_PREFIX}${PR_TITLE}" --fill --base ${TARGET_BRANCH}
     fi
-    echo "executing... git push origin ${BOT_BRANCH_NAME}"
-    git push origin ${BOT_BRANCH_NAME}
-    echo "executing... gh pr create --title \"${BOT_PR_TITLE_PREFIX}${PR_TITLE}\" --fill --base ${TARGET_BRANCH}"
-    gh pr create --title "${BOT_PR_TITLE_PREFIX}${PR_TITLE}" --fill --base ${TARGET_BRANCH}
 }
 
 pr_close_prompt_args() {
