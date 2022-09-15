@@ -74,6 +74,8 @@ cherrypick() {
     git status
     echo "executing... git log -p -1"
     git log -p -1
+    echo "executing... git log main -p -10"
+    git log main -p -10
     echo "executing... git cherry-pick -x "${PR_MERGE_COMMIT_SHA}""
     RES=`git cherry-pick -x "${PR_MERGE_COMMIT_SHA}" 2>&1`
     echo "cherry-pick res: $RES"
