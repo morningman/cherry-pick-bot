@@ -15,7 +15,7 @@ cherrypick_args() {
     readonly COMMENT_BODY=$(jq -r '.comment.body' ${GITHUB_EVENT_PATH})
     readonly PR_NUMBER=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
 
-    readonly BOT_BRANCH_NAME="cherrypickbot/cherry-pick-${PR_NUMBER}"
+    readonly BOT_BRANCH_NAME="cherrypickbot/cherry-pick-pr${PR_NUMBER}"
     readonly BOT_PR_TITLE_PREFIX="[bot-cherry-pick]"
     if [[ "" == "${GITHUB_TOKEN}" ]]; then
        readonly PR_INFO=$(curl -s --request GET \
@@ -35,9 +35,11 @@ cherrypick_args() {
 
 # setup github for commit the changes
 git_setup() {
-   echo "cmy000"
-   git config user.name "${GITHUB_USER}"
-   git config user.email "${GITHUB_EMAIL}"
+   echo "executing... git config --global user.name \"${GITHUB_USER}\""
+   git config --global user.name "${GITHUB_USER}"
+   echo "executing... git config --global user.email \"${GITHUB_EMAIL}\""
+   git config --global user.email "${GITHUB_EMAIL}"
+   echo "executing... git config --global --add safe.directory /github/workspace"
    git config --global --add safe.directory /github/workspace
 }
 
@@ -52,37 +54,39 @@ check_pr_is_merged() {
         echo "PR is not merged"
         exit 0
     fi
-    echo "cmy merged"
+    echo "PR is merged"
 }
 
 cherrypick() {
     check_pr_is_merged
-    echo "cmy branch1"
-    TARGET_BRANCH=`echo ${COMMENT_BODY} | grep -o "branch-[0-9].[0-9]"`
+    TARGET_BRANCH=`echo ${COMMENT_BODY} | grep -o "branch-[0-9].[0-9].*"`
     if [[ "" == ${TARGET_BRANCH} ]]; then
         echo "Wrong target branch"
         exit 1
     fi
-    echo "git fetch --all"
+    echo "executing... git fetch --all"
     git fetch --all
-    echo "git checkout ${TARGET_BRANCH}"
+    echo "executing... git checkout ${TARGET_BRANCH}"
     git checkout ${TARGET_BRANCH}
-    echo "git checkout -b ${BOT_BRANCH_NAME}"
+    echo "executing... git checkout -b ${BOT_BRANCH_NAME}"
     git checkout -b ${BOT_BRANCH_NAME}
-    echo "git status"
+    echo "executing... git status"
     git status
-    echo "git cherry-pick -x "${PR_MERGE_COMMIT_SHA}""
+    echo "executing... git cherry-pick -x "${PR_MERGE_COMMIT_SHA}""
     git cherry-pick -x "${PR_MERGE_COMMIT_SHA}"
     status=$?
-    if [[ ${status} != 0 ]]; then
-        echo "git add ."
+    if [[ ${status} == 0 ]]; then
+        echo "executing... git add ."
         git add .
-        echo "git commit --allow-empty -m "${BOT_PR_TITLE_PREFIX}${PR_TITLE}""
+        echo "executing... git commit --allow-empty -m \"${BOT_PR_TITLE_PREFIX}${PR_TITLE}\""
         git commit --allow-empty -m "${BOT_PR_TITLE_PREFIX}${PR_TITLE}"
+    else
+        echo "cherry-pick failed"
+        exit -1
     fi
-    echo "git push origin ${BOT_BRANCH_NAME}"
+    echo "executing... git push origin ${BOT_BRANCH_NAME}"
     git push origin ${BOT_BRANCH_NAME}
-    echo "gh pr create --title "${BOT_PR_TITLE_PREFIX}${PR_TITLE}" --fill --base ${TARGET_BRANCH}"
+    echo "executing... gh pr create --title \"${BOT_PR_TITLE_PREFIX}${PR_TITLE}\" --fill --base ${TARGET_BRANCH}"
     gh pr create --title "${BOT_PR_TITLE_PREFIX}${PR_TITLE}" --fill --base ${TARGET_BRANCH}
 }
 
